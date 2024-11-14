@@ -1,1 +1,1 @@
-https://solana.com/developers/courses/native-onchain-development/deserialize-instruction-data#rust-basics
+https://solana.com/developers/courses/native-onchain-development/program-state-management#challenge

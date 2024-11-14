@@ -1,6 +1,7 @@
-use borsh::BorshDeserialize;
+use borsh::{ BorshDeserialize, BorshSerialize };
 use solana_program::program_error::ProgramError;
 
+#[derive(BorshDeserialize, BorshSerialize)]
 pub enum MovieInstruction {
     AddMovieReview {
         title: String,
@@ -9,24 +10,11 @@ pub enum MovieInstruction {
     },
 }
 
-pub enum StudentInstruction {
-    RegisterStudent {
-        name: String,
-        message: String,
-    },
-}
-
 #[derive(BorshDeserialize)]
 pub struct MovieReviewPayload {
     title: String,
     rating: u8,
     description: String,
-}
-
-#[derive(BorshDeserialize)]
-pub struct RegsiterStudentPayload {
-    name: String,
-    message: String,
 }
 
 impl MovieInstruction {
@@ -46,23 +34,6 @@ impl MovieInstruction {
                     rating: payload.rating,
                     description: payload.description,
                 }),
-            _ => Err(ProgramError::InvalidInstructionData),
-        }
-    }
-}
-
-impl StudentInstruction {
-    pub fn unpack(instruction: &[u8]) -> Result<Self, ProgramError> {
-        let (&variant, rest) = instruction
-            .split_first()
-            .ok_or(ProgramError::InvalidInstructionData)?;
-
-        let payload = RegsiterStudentPayload::try_from_slice(rest).map_err(
-            |_| ProgramError::InvalidInstructionData
-        )?;
-
-        match variant {
-            0 => Ok(Self::RegisterStudent { name: payload.name, message: payload.message }),
             _ => Err(ProgramError::InvalidInstructionData),
         }
     }
