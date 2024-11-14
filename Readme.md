@@ -1,1 +1,1 @@
-https://solana.com/developers/courses/native-onchain-development/program-state-management#challenge
+https://solana.com/developers/courses/native-onchain-development/program-security
