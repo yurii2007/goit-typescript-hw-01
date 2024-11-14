@@ -11,7 +11,6 @@ pub enum StudentInstruction {
 
 #[derive(BorshDeserialize)]
 pub struct RegisterStudentPayload {
-    is_initialized: bool,
     name: String,
     msg: String,
 }
