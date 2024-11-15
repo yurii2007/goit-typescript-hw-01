@@ -1,18 +1,8 @@
-use borsh::{ BorshSerialize, BorshDeserialize };
-use solana_program::program_pack::{ IsInitialized, Sealed };
+use borsh::{ BorshDeserialize, BorshSerialize };
 
 #[derive(BorshSerialize, BorshDeserialize)]
-pub struct MovieAccountState {
+pub struct StudentInfo {
     pub is_initialized: bool,
-    pub rating: u8,
-    pub description: String,
-    pub title: String,
-}
-
-impl Sealed for MovieAccountState {}
-
-impl IsInitialized for MovieAccountState {
-    fn is_initialized(&self) -> bool {
-        self.is_initialized
-    }
+    pub name: String,
+    pub msg: String,
 }
