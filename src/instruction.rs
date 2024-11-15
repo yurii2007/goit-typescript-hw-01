@@ -6,6 +6,10 @@ pub enum IntroInstruction {
         name: String,
         message: String,
     },
+    UpdateUserInput {
+        name: String,
+        message: String,
+    },
 }
 
 #[derive(BorshDeserialize, Debug)]
@@ -25,6 +29,7 @@ impl IntroInstruction {
                     name: payload.name,
                     message: payload.message,
                 },
+            1 => Self::UpdateUserInput { name: payload.name, message: payload.message },
             _ => {
                 return Err(ProgramError::InvalidInstructionData);
             }
