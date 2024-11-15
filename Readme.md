@@ -1,1 +1,1 @@
-https://solana.com/developers/courses/native-onchain-development/program-security
+https://solana.com/developers/courses/native-onchain-development/program-derived-addresses#finding-pdas
