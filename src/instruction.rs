@@ -1,68 +1,42 @@
 use borsh::BorshDeserialize;
 use solana_program::program_error::ProgramError;
 
-pub enum MovieInstruction {
-    AddMovieReview {
-        title: String,
-        rating: u8,
-        description: String,
+pub enum IntroInstruction {
+    InitUserInput {
+        name: String,
+        message: String,
     },
-    UpdateMovieReview {
-        title: String,
-        rating: u8,
-        description: String,
-    },
-    AddComment {
-        comment: String,
+    UpdateStudentIntro {
+        name: String,
+        message: String,
     },
 }
 
-#[derive(BorshDeserialize)]
-struct MovieReviewPayload {
-    title: String,
-    rating: u8,
-    description: String,
+#[derive(BorshDeserialize, Debug)]
+struct StudentIntroPayload {
+    name: String,
+    message: String,
 }
 
-#[derive(BorshDeserialize)]
-struct CommentPayload {
-    comment: String,
-}
-
-impl MovieInstruction {
+impl IntroInstruction {
     pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
-        let (&discriminator, rest) = input
-            .split_first()
-            .ok_or(ProgramError::InvalidInstructionData)?;
+        let (variant, rest) = input.split_first().ok_or(ProgramError::InvalidInstructionData)?;
+        let payload = StudentIntroPayload::try_from_slice(rest).unwrap();
 
-        match discriminator {
-            0 => {
-                let payload = MovieReviewPayload::try_from_slice(rest).map_err(
-                    |_| ProgramError::InvalidInstructionData
-                )?;
-                Ok(Self::AddMovieReview {
-                    title: payload.title,
-                    rating: payload.rating,
-                    description: payload.description,
-                })
+        Ok(match variant {
+            0 =>
+                Self::InitUserInput {
+                    name: payload.name,
+                    message: payload.message,
+                },
+            1 =>
+                Self::UpdateStudentIntro {
+                    name: payload.name,
+                    message: payload.message,
+                },
+            _ => {
+                return Err(ProgramError::InvalidInstructionData);
             }
-            1 => {
-                let payload = MovieReviewPayload::try_from_slice(rest).map_err(
-                    |_| ProgramError::InvalidInstructionData
-                )?;
-                Ok(Self::UpdateMovieReview {
-                    title: payload.title,
-                    rating: payload.rating,
-                    description: payload.description,
-                })
-            }
-            2 => {
-                let payload = CommentPayload::try_from_slice(rest).map_err(
-                    |_| ProgramError::InvalidInstructionData
-                )?;
-                Ok(Self::AddComment { comment: payload.comment })
-            }
-            _ => Err(ProgramError::InvalidInstructionData),
-        }
+        })
     }
 }
