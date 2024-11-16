@@ -2,69 +2,61 @@ use borsh::{ BorshDeserialize, BorshSerialize };
 use solana_program::{ program_pack::{ IsInitialized, Sealed }, pubkey::Pubkey };
 
 #[derive(BorshSerialize, BorshDeserialize)]
-pub struct MovieAccountState {
-    pub is_initialized: bool,
-    pub reviewer: Pubkey,
-    pub rating: u8,
-    pub description: String,
-    pub title: String,
+pub struct StudentInfo {
     pub discriminator: String,
+    pub is_initialized: bool,
+    pub name: String,
+    pub msg: String,
 }
 
 #[derive(BorshDeserialize, BorshSerialize)]
-pub struct MovieCommentCounter {
+pub struct StudentRepliesCounter {
     pub discriminator: String,
     pub is_initialized: bool,
     pub counter: u64,
 }
 
-#[derive(BorshSerialize, BorshDeserialize)]
-pub struct MovieComment {
-    pub discriminator: String,
+#[derive(BorshDeserialize, BorshSerialize)]
+pub struct StudentInfoReply {
     pub is_initialized: bool,
-    pub review: Pubkey,
-    pub posted_by: Pubkey,
-    pub comment: String,
-    pub count: u64,
+    pub reply: String,
+    pub replier: Pubkey,
+    pub intro: Pubkey,
+    pub discriminator: String,
 }
 
-impl Sealed for MovieAccountState {}
+impl Sealed for StudentInfo {}
 
-impl IsInitialized for MovieAccountState {
+impl IsInitialized for StudentInfo {
     fn is_initialized(&self) -> bool {
         self.is_initialized
     }
 }
 
-impl IsInitialized for MovieCommentCounter {
+impl IsInitialized for StudentRepliesCounter {
     fn is_initialized(&self) -> bool {
         self.is_initialized
     }
 }
 
-impl IsInitialized for MovieComment {
+impl IsInitialized for StudentInfoReply {
     fn is_initialized(&self) -> bool {
         self.is_initialized
     }
 }
 
-impl MovieAccountState {
-    pub const DISCRIMINATOR: &'static str = "review";
+impl StudentInfo {
+    pub const DISCRIMINATOR: &'static str = "intro";
 
-    pub fn get_account_size(title: &String, description: &String) -> usize {
-        4 + MovieAccountState::DISCRIMINATOR.len() + 1 + 1 + 4 + title.len() + 4 + description.len()
+    pub fn get_account_size(name: &String, message: &String) -> usize {
+        StudentInfo::DISCRIMINATOR.len() + 1 + name.len() + message.len() + 64
     }
 }
 
-impl MovieCommentCounter {
-    pub const DISCRIMINATOR: &'static str = "counter";
-    pub const SIZE: usize = 4 + MovieAccountState::DISCRIMINATOR.len() + 1 + 8;
-}
+impl StudentInfoReply {
+    pub const DISCRIMINATOR: &'static str = "reply";
 
-impl MovieComment {
-    pub const DISCRIMINATOR: &'static str = "comment";
-
-    pub fn get_account_size(comment: &String) -> usize {
-        return 4 + MovieComment::DISCRIMINATOR.len() + 1 + 32 + 32 + (4 + comment.len()) + 8;
+    pub fn get_account_size(reply: &String) -> usize {
+        4 + StudentInfoReply::DISCRIMINATOR.len() + 1 + (4 + reply.len()) + 64 + 64 + 8
     }
 }
