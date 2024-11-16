@@ -1,6 +1,6 @@
-use crate::error::StudentIntroError;
+use crate::{ error::StudentIntroError, state::StudentRepliesCounter };
 use crate::instruction::IntroInstruction;
-use crate::state::StudentInfo;
+use crate::state::{ StudentInfo, StudentInfoReply };
 use borsh::{ BorshDeserialize, BorshSerialize };
 use solana_program::{
     account_info::{ next_account_info, AccountInfo },
@@ -29,6 +29,7 @@ pub fn process_instruction(
         IntroInstruction::UpdateStudentIntro { name, message } => {
             update_student_intro(program_id, accounts, name, message)
         }
+        IntroInstruction::AddReply { reply } => { add_reply(program_id, accounts, reply) }
     }
 }
 
@@ -53,7 +54,7 @@ pub fn add_student_intro(
         return Err(StudentIntroError::InvalidPDA.into());
     }
 
-    let total_len: usize = 1 + (4 + name.len()) + (4 + message.len());
+    let total_len = StudentInfo::get_account_size(&name, &message);
     if total_len > 1000 {
         msg!("Data length is larger than 1000 bytes");
         return Err(StudentIntroError::InvalidDataLength.into());
@@ -143,6 +144,67 @@ pub fn update_student_intro(
     msg!("serializing account");
     account_data.serialize(&mut &mut user_account.data.borrow_mut()[..])?;
     msg!("state account serialized");
+
+    Ok(())
+}
+
+pub fn add_reply(program_id: &Pubkey, accounts: &[AccountInfo], reply: String) -> ProgramResult {
+    let account_info_iter = &mut accounts.iter();
+
+    let initializer = next_account_info(account_info_iter)?;
+    let pda_intro = next_account_info(account_info_iter)?;
+    let pda_counter = next_account_info(account_info_iter)?;
+    let pda_reply = next_account_info(account_info_iter)?;
+    let system_program = next_account_info(account_info_iter)?;
+
+    let mut counter_data = StudentRepliesCounter::try_from_slice(&pda_counter.data.borrow())?;
+
+    let account_len = StudentInfoReply::get_account_size(&reply);
+
+    let rent = Rent::get()?;
+    let rent_lamports = rent.minimum_balance(account_len);
+
+    let (pda, bump_seed) = Pubkey::find_program_address(
+        &[pda_intro.key.as_ref(), counter_data.counter.to_be_bytes().as_ref()],
+        program_id
+    );
+
+    if pda != *pda_reply.key {
+        msg!("Invalid seed for PDA");
+        return Err(StudentIntroError::InvalidPDA.into());
+    }
+
+    invoke_signed(
+        &system_instruction::create_account(
+            initializer.key,
+            pda_reply.key,
+            rent_lamports,
+            account_len.try_into().unwrap(),
+            program_id
+        ),
+        &[initializer.clone(), pda_reply.clone(), system_program.clone()],
+        &[&[pda_reply.key.as_ref(), counter_data.counter.to_be_bytes().as_ref(), &[bump_seed]]]
+    )?;
+
+    msg!("Account was created");
+
+    let mut reply_data = StudentInfoReply::try_from_slice(&pda_reply.data.borrow_mut()[..])?;
+
+    if reply_data.is_initialized() {
+        msg!("Account already created");
+        return Err(ProgramError::AccountAlreadyInitialized);
+    }
+
+    reply_data.discriminator = StudentInfoReply::DISCRIMINATOR.to_string();
+    reply_data.reply = reply;
+    reply_data.intro = *pda_intro.key;
+    reply_data.replier = *initializer.key;
+    reply_data.is_initialized = true;
+
+    reply_data.serialize(&mut &mut pda_reply.data.borrow_mut()[..])?;
+
+    counter_data.counter += 1;
+    counter_data.serialize(&mut &mut pda_counter.data.borrow_mut()[..])?;
 
     Ok(())
 }

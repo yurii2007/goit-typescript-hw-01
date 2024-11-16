@@ -10,6 +10,9 @@ pub enum IntroInstruction {
         name: String,
         message: String,
     },
+    AddReply {
+        reply: String,
+    },
 }
 
 #[derive(BorshDeserialize, Debug)]
@@ -18,22 +21,34 @@ struct StudentIntroPayload {
     message: String,
 }
 
+#[derive(BorshDeserialize)]
+struct StudentReplyPayload {
+    reply: String,
+}
+
 impl IntroInstruction {
     pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
         let (variant, rest) = input.split_first().ok_or(ProgramError::InvalidInstructionData)?;
-        let payload = StudentIntroPayload::try_from_slice(rest).unwrap();
 
         Ok(match variant {
-            0 =>
+            0 => {
+                let payload = StudentIntroPayload::try_from_slice(rest).unwrap();
                 Self::InitUserInput {
                     name: payload.name,
                     message: payload.message,
-                },
-            1 =>
+                }
+            }
+            1 => {
+                let payload = StudentIntroPayload::try_from_slice(rest).unwrap();
                 Self::UpdateStudentIntro {
                     name: payload.name,
                     message: payload.message,
-                },
+                }
+            }
+            2 => {
+                let payload = StudentReplyPayload::try_from_slice(rest).unwrap();
+                Self::AddReply { reply: payload.reply }
+            }
             _ => {
                 return Err(ProgramError::InvalidInstructionData);
             }
