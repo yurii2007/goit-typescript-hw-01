@@ -186,6 +186,14 @@ pub fn add_reply(program_id: &Pubkey, accounts: &[AccountInfo], reply: String) -
         &[&[pda_reply.key.as_ref(), counter_data.counter.to_be_bytes().as_ref(), &[bump_seed]]]
     )?;
 
+    // invoke_signed(
+    //     &instruction,
+    //     accounts,
+    //     &[&["First addresses seed"],
+    //         &["Second addresses first seed",
+    //         "Second addresses second seed"]],
+    // )?;
+
     msg!("Account was created");
 
     let mut reply_data = StudentInfoReply::try_from_slice(&pda_reply.data.borrow_mut()[..])?;
