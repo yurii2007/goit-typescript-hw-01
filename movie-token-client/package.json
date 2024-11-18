@@ -1,0 +1,20 @@
+{
+  "name": "movie-token-client",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@solana-developers/helpers": "^2.5.2",
+    "@solana/web3.js": "^1.95.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "esrun": "^3.2.26"
+  }
+}

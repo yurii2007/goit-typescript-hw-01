@@ -3,3 +3,5 @@
 
 notes.txt
 .env
+node_modules/
+movie-token-client/node_modules/
