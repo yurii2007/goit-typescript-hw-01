@@ -1,57 +1,72 @@
 use borsh::BorshDeserialize;
 use solana_program::program_error::ProgramError;
 
-pub enum IntroInstruction {
-    InitUserInput {
-        name: String,
-        message: String,
+pub enum MovieInstruction {
+    AddMovieReview {
+        title: String,
+        rating: u8,
+        description: String,
     },
-    UpdateStudentIntro {
-        name: String,
-        message: String,
+    UpdateMovieReview {
+        title: String,
+        rating: u8,
+        description: String,
     },
-    AddReply {
-        reply: String,
+    AddComment {
+        comment: String,
     },
-}
-
-#[derive(BorshDeserialize, Debug)]
-struct StudentIntroPayload {
-    name: String,
-    message: String,
+    InitializeMint,
 }
 
 #[derive(BorshDeserialize)]
-struct StudentReplyPayload {
-    reply: String,
+struct MovieReviewPayload {
+    title: String,
+    rating: u8,
+    description: String,
 }
 
-impl IntroInstruction {
-    pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
-        let (variant, rest) = input.split_first().ok_or(ProgramError::InvalidInstructionData)?;
+#[derive(BorshDeserialize)]
+struct CommentPayload {
+    comment: String,
+}
 
-        Ok(match variant {
+impl MovieInstruction {
+    pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
+        let (&discriminator, rest) = input
+            .split_first()
+            .ok_or(ProgramError::InvalidInstructionData)?;
+
+        match discriminator {
             0 => {
-                let payload = StudentIntroPayload::try_from_slice(rest).unwrap();
-                Self::InitUserInput {
-                    name: payload.name,
-                    message: payload.message,
-                }
+                let payload = MovieReviewPayload::try_from_slice(rest).map_err(
+                    |_| ProgramError::InvalidInstructionData
+                )?;
+                Ok(Self::AddMovieReview {
+                    title: payload.title,
+                    rating: payload.rating,
+                    description: payload.description,
+                })
             }
             1 => {
-                let payload = StudentIntroPayload::try_from_slice(rest).unwrap();
-                Self::UpdateStudentIntro {
-                    name: payload.name,
-                    message: payload.message,
-                }
+                let payload = MovieReviewPayload::try_from_slice(rest).map_err(
+                    |_| ProgramError::InvalidInstructionData
+                )?;
+                Ok(Self::UpdateMovieReview {
+                    title: payload.title,
+                    rating: payload.rating,
+                    description: payload.description,
+                })
             }
             2 => {
-                let payload = StudentReplyPayload::try_from_slice(rest).unwrap();
-                Self::AddReply { reply: payload.reply }
+                let payload = CommentPayload::try_from_slice(rest).map_err(
+                    |_| ProgramError::InvalidInstructionData
+                )?;
+                Ok(Self::AddComment {
+                    comment: payload.comment,
+                })
             }
-            _ => {
-                return Err(ProgramError::InvalidInstructionData);
-            }
-        })
+            3 => Ok(Self::InitializeMint),
+            _ => Err(ProgramError::InvalidInstructionData),
+        }
     }
 }
