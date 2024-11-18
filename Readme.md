@@ -1,1 +1,1 @@
-https://solana.com/developers/courses/native-onchain-development/cross-program-invocations#5-repeat-for-add-comment
+https://solana.com/developers/courses/native-onchain-development/serialize-instruction-data-frontend
