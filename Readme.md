@@ -1,1 +1,1 @@
-https://solana.com/developers/courses/native-onchain-development/cross-program-invocations#lab
+https://solana.com/developers/courses/native-onchain-development/cross-program-invocations#5-repeat-for-add-comment
