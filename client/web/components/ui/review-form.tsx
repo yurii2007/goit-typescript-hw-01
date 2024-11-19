@@ -1,6 +1,13 @@
 import { FC, FormEvent, useState } from 'react';
 import { Movie } from '@/models/movie-model';
 import { StarIcon } from '@heroicons/react/24/solid';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import {
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  TransactionInstruction,
+} from '@solana/web3.js';
 
 const MOVIE_REVIEW_PROGRAM_ID = 'CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN';
 
@@ -8,6 +15,9 @@ export const Form: FC = () => {
   const [title, setTitle] = useState('');
   const [rating, setRating] = useState(0);
   const [description, setDescription] = useState('');
+
+  const { connection } = useConnection();
+  const { publicKey, sendTransaction } = useWallet();
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -20,7 +30,53 @@ export const Form: FC = () => {
   };
 
   const handleTransactionSubmit = async (movie: Movie) => {
-    console.log(JSON.stringify(movie));
+    if (!publicKey) {
+      alert('Connect your wallet first');
+      return;
+    }
+
+    const buffer = movie.serialize();
+    const transaction = new Transaction();
+
+    const [pda] = PublicKey.findProgramAddressSync(
+      [publicKey.toBuffer(), new TextEncoder().encode(movie.title)],
+      new PublicKey(MOVIE_REVIEW_PROGRAM_ID)
+    );
+
+    const instruction = new TransactionInstruction({
+      keys: [
+        {
+          pubkey: publicKey,
+          isSigner: true,
+          isWritable: false,
+        },
+        {
+          pubkey: pda,
+          isSigner: false,
+          isWritable: true,
+        },
+        {
+          pubkey: SystemProgram.programId,
+          isSigner: false,
+          isWritable: false,
+        },
+      ],
+      data: buffer,
+      programId: new PublicKey(MOVIE_REVIEW_PROGRAM_ID),
+    });
+
+    transaction.add(instruction);
+    const recentBlockhash = await connection.getLatestBlockhash('confirmed');
+    transaction.recentBlockhash = recentBlockhash.blockhash;
+
+    try {
+      const transactionId = await sendTransaction(transaction, connection, {
+        skipPreflight: true,
+      });
+      console.log(transactionId);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
