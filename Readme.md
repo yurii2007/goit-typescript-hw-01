@@ -1,1 +1,1 @@
-https://solana.com/developers/courses/native-onchain-development/paging-ordering-filtering-data-frontend#3-order-reviews-alphabetically-by-title
+https://solana.com/developers/courses/native-onchain-development/paging-ordering-filtering-data-frontend#challenge
