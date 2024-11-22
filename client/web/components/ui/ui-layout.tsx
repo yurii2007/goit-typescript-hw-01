@@ -57,7 +57,7 @@ export function UiLayout({
         </div>
 
         <div className="absolute left-1/2 transform -translate-x-1/2">
-          <h3 className="text-[25px] font-bold">Student Intros dApp</h3>
+          <h3 className="text-[25px] font-bold">Movie Review dApp</h3>
         </div>
 
         <div className="flex items-center space-x-2">
