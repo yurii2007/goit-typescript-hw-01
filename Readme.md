@@ -1,1 +1,1 @@
-https://solana.com/developers/courses/native-onchain-development/deserialize-custom-data-frontend#getting-multiple-program-accounts
+https://solana.com/developers/courses/native-onchain-development/paging-ordering-filtering-data-frontend#summary
