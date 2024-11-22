@@ -2,44 +2,43 @@ import { FC, useState, useEffect } from 'react';
 import { Card } from './movie-card';
 import { Movie } from '@/models/movie-model';
 import { useConnection } from '@solana/wallet-adapter-react';
-import { PublicKey } from '@solana/web3.js';
 import toast from 'react-hot-toast';
 import { MovieCoordinator } from '@/coordinator/MovieCoordinator';
-
-const MOVIE_REVIEW_PROGRAM_ID = 'CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN';
-
-// 4 bytes are used to store the current length of a string
-const STRING_LENGTH_SPACE = 4;
-
-// 9 bytes are reserved for some metadata related to the account structure. (initialized 1(bool) + rating 8(u8))
-const ACCOUNT_METADATA_SPACE = 1;
-
-// The offset where the actual data begins.
-const DATA_OFFSET = STRING_LENGTH_SPACE + ACCOUNT_METADATA_SPACE;
-
-// Length of data we need to retrieve (15 bytes in this case, based on the expected size of the relevant data slice).
-const DATA_LENGTH = 100;
 
 export const MovieList: FC = () => {
   const { connection } = useConnection();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [page, setPage] = useState(0);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     if (!connection) return;
 
     (async () => {
       try {
-        const movies = await MovieCoordinator.fetchPage(connection, page, 10);
+        const movies = await MovieCoordinator.fetchPage(
+          connection,
+          page,
+          10,
+          search,
+          search !== ''
+        );
         setMovies(movies);
       } catch (error: any) {
         console.error('Fetch movies error', error);
+        toast.error(error.message);
       }
     })();
-  }, [setMovies, connection, page]);
+  }, [setMovies, connection, page, search]);
 
   return (
     <div className="py-5 flex flex-col w-fullitems-center justify-center">
+      <input
+        id="search"
+        className="w-[300px] p-2 mb-4 bg-gray-700 border border-gray-600 rounded text-gray-400"
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Search"
+      />
       {movies.map((movie, i) => (
         <Card key={i} movie={movie} />
       ))}
