@@ -1,1 +1,1 @@
-https://solana.com/developers/courses/native-onchain-development/serialize-instruction-data-frontend#challenge
+https://solana.com/developers/courses/native-onchain-development/deserialize-custom-data-frontend#lesson
