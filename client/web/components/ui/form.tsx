@@ -10,7 +10,8 @@ import { StudentIntro } from '@/models/studentIntro';
 
 import { useFormTransactionToast } from './ui-layout';
 
-const STUDENT_INTRO_PROGRAM_ID = 'HdE95RSVsdb315jfJtaykXhXY478h53X6okDupVfY9yf';
+export const STUDENT_INTRO_PROGRAM_ID =
+  'HdE95RSVsdb315jfJtaykXhXY478h53X6okDupVfY9yf';
 
 export const Form: FC = () => {
   const [name, setName] = useState('');
@@ -68,7 +69,6 @@ export const Form: FC = () => {
       );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.log(error);
       showTransactionToast({
         status: 'failure',
         errorMessage: error.message,

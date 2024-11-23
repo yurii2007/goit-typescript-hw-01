@@ -1,36 +1,44 @@
 import { FC, useState, useEffect } from 'react';
 import { Card } from './card';
+import { Connection, clusterApiUrl, PublicKey } from '@solana/web3.js';
 import { StudentIntro } from '@/models/studentIntro';
-import { useConnection } from '@solana/wallet-adapter-react';
-import { PublicKey } from '@solana/web3.js';
-import toast from 'react-hot-toast';
-
-const STUDENT_INTROS_PROGRAM_ID =
-  'HdE95RSVsdb315jfJtaykXhXY478h53X6okDupVfY9yf';
+import { STUDENT_INTRO_PROGRAM_ID } from './form';
 
 export const StudentList: FC = () => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const connection = new Connection(clusterApiUrl('devnet'));
   const [studentIntros, setStudentIntros] = useState<StudentIntro[]>([]);
-  const { connection } = useConnection();
 
   useEffect(() => {
-    if (!connection) return;
-
-    (async () => {
+    const fetchStudentIntros = async () => {
       try {
-        const studentIntros = await connection.getProgramAccounts(
-          new PublicKey(STUDENT_INTROS_PROGRAM_ID)
+        const accounts = await connection.getProgramAccounts(
+          new PublicKey(STUDENT_INTRO_PROGRAM_ID)
         );
-
-        setStudentIntros(
-          studentIntros
-            .map(({ account }) => StudentIntro.deserialize(account.data))
-            .filter((intro) => intro !== null)
+        const studentIntros: StudentIntro[] = accounts.reduce(
+          (accumulator: StudentIntro[], { account }) => {
+            try {
+              const studentIntro = StudentIntro.deserialize(account.data);
+              if (studentIntro) {
+                return accumulator.concat(studentIntro);
+              } else {
+                throw new Error('Deserialization error');
+              }
+            } catch (error) {
+              console.error('Error deserializing student intro:', error);
+              return accumulator;
+            }
+          },
+          []
         );
-      } catch (error: any) {
-        toast.error(error.message);
+        setStudentIntros(studentIntros);
+      } catch (error) {
+        console.error('Failed to fetch student intros:', error);
       }
-    })();
-  }, [connection, setStudentIntros]);
+    };
+
+    fetchStudentIntros();
+  }, [connection]);
 
   return (
     <div className="py-5 flex flex-col w-fullitems-center justify-center">
