@@ -1,1 +1,1 @@
-https://solana.com/developers/courses/tokens-and-nfts/token-program#associated-token-accounts
+https://solana.com/developers/courses/tokens-and-nfts/token-program#challenge
