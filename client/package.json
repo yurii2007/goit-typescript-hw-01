@@ -2,11 +2,14 @@
   "name": "@movie-review-dapp/source",
   "version": "0.0.0",
   "license": "MIT",
+  "module": "module",
   "scripts": {
-    "start": "esbuild ./index.ts"
+    "start": "node ./index.js",
+    "build:dev": "npx esbuild ./create-token-mint.ts --bundle --outfile=index.js --watch --platform=node"
   },
   "private": true,
   "dependencies": {
+    "@metaplex-foundation/mpl-token-metadata": "^2.13.0",
     "@solana-developers/helpers": "^2.5.6",
     "@solana/spl-token": "^0.4.9",
     "@solana/web3.js": "^1.95.5",
@@ -14,6 +17,7 @@
   },
   "devDependencies": {
     "esbuild": "^0.24.0",
+    "esrun": "^3.2.26",
     "prettier": "^2.8.8",
     "typescript": "~5.4.2"
   }
