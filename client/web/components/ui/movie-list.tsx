@@ -2,43 +2,64 @@ import { FC, useState, useEffect } from 'react';
 import { Card } from './movie-card';
 import { Movie } from '@/models/movie-model';
 import { useConnection } from '@solana/wallet-adapter-react';
-import { PublicKey } from '@solana/web3.js';
 import toast from 'react-hot-toast';
-
-const MOVIE_REVIEW_PROGRAM_ID = 'CenYq6bDRB7p73EjsPEpiYN7uveyPUTdXkDkgUduboaN';
+import { MovieCoordinator } from '@/coordinator/MovieCoordinator';
 
 export const MovieList: FC = () => {
   const { connection } = useConnection();
-  const [movies, setMovies] = useState<Movie[]>([]); // Specify the type here
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [page, setPage] = useState(0);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     if (!connection) return;
 
     (async () => {
       try {
-        const accounts = await connection.getProgramAccounts(
-          new PublicKey(MOVIE_REVIEW_PROGRAM_ID)
+        const movies = await MovieCoordinator.fetchPage(
+          connection,
+          page,
+          10,
+          search,
+          search !== ''
         );
-        console.log('LENGTH', accounts.length);
-
-        const movies = accounts
-          .slice(0, 30)
-          .map(({ account }) => Movie.deserialize(account.data))
-          .filter((movie) => movie !== null);
-
         setMovies(movies);
       } catch (error: any) {
-        console.error(error);
+        console.error('Fetch movies error', error);
         toast.error(error.message);
       }
     })();
-  }, [setMovies, connection]);
+  }, [setMovies, connection, page, search]);
 
   return (
     <div className="py-5 flex flex-col w-fullitems-center justify-center">
+      <input
+        id="search"
+        className="w-[300px] p-2 mb-4 bg-gray-700 border border-gray-600 rounded text-gray-400"
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Search"
+      />
       {movies.map((movie, i) => (
         <Card key={i} movie={movie} />
       ))}
+      <div className="flex justify-between mt-4">
+        {page > 0 && (
+          <button
+            onClick={() => setPage((page) => page - 1)}
+            className="px-6 py-2 bg-gray-300 text-black font-semibold rounded"
+          >
+            Previous
+          </button>
+        )}
+        {movies.length % 10 === 0 && (
+          <button
+            onClick={() => setPage((page) => page + 1)}
+            className="px-6 py-2 bg-gray-300 text-black font-semibold rounded"
+          >
+            Next
+          </button>
+        )}
+      </div>
     </div>
   );
 };

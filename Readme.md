@@ -1,1 +1,1 @@
-https://solana.com/developers/courses/native-onchain-development/paging-ordering-filtering-data-frontend#summary
+https://solana.com/developers/courses/native-onchain-development/paging-ordering-filtering-data-frontend#challenge
