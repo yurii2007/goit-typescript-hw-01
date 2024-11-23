@@ -1,1 +1,1 @@
-https://solana.com/developers/courses/native-onchain-development/paging-ordering-filtering-data-frontend#challenge
+https://solana.com/developers/courses/tokens-and-nfts/token-program#summary
