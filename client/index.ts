@@ -8,6 +8,7 @@ import {
 } from '@solana/web3.js';
 import {
   createAccount,
+  createAssociatedTokenAccount,
   createInitializeAccountInstruction,
   createInitializeMintInstruction,
   getAccountLenForMint,
@@ -81,6 +82,13 @@ async function buildCreateTokenAccountTransaction(
       payer,
       programId
     )
+  );
+
+  const associatedTokenAccount = await createAssociatedTokenAccount(
+    connection,
+    payer,
+    mint,
+    programId
   );
 
   return transaction;
