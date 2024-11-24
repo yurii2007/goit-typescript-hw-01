@@ -1,1 +1,1 @@
-https://solana.com/developers/courses/tokens-and-nfts/token-program#challenge
+https://solana.com/developers/courses/tokens-and-nfts/token-program-advanced#summary
