@@ -1,1 +1,1 @@
-https://solana.com/developers/courses/tokens-and-nfts/nfts-with-metaplex#3-update-the-nft
+https://solana.com/developers/courses/onchain-development/intro-to-onchain#summary
