@@ -1,27 +1,43 @@
-import { approve, burn, revoke } from '@solana/spl-token';
+import 'dotenv/config';
+import { burn, getOrCreateAssociatedTokenAccount } from '@solana/spl-token';
+import { clusterApiUrl, Connection, PublicKey } from '@solana/web3.js';
+import {
+  getExplorerLink,
+  getKeypairFromEnvironment,
+} from '@solana-developers/helpers';
 
-const signature = await burn(
-  connection,
-  payer, // account which pay transaction fees
-  account, // account from which tokens will be burned
-  mint, // token mint associated with account
-  owner, // owner of the token account
-  amount, // amount of tokens to burn
-);
+const CONNECTION_URL = clusterApiUrl('devnet');
+const TOKEN_DECIMALS = 2;
+const BURN_AMOUNT = 5;
+const TOKEN_MINT_ADDRESS = '3AZc1CwrWZxzMqKzxQCg9v34qGpSRkqJC1iN5o4DDSG1';
 
-// approve the delegate
-const delegateSignature = await approve(
-  connection,
-  payer, //
-  account, // account to delegate tokens from
-  delegate, // authorized account to transfer or burn tokens
-  owner, // owner of the token account
-  amount, //
-);
+const connection = new Connection(CONNECTION_URL);
+const user = getKeypairFromEnvironment('SECRET_KEY');
+const tokenMintAccount = new PublicKey(TOKEN_MINT_ADDRESS);
 
-const revokeSignature = await revoke(
+try {
+  const userTokenAccount = await getOrCreateAssociatedTokenAccount(
     connection,
-    payer,
-    account,
-    owner,
-)
+    user,
+    tokenMintAccount,
+    user.publicKey,
+  );
+
+  const burnAmount = BURN_AMOUNT * 10 ** TOKEN_DECIMALS;
+
+  const burnSignature = await burn(
+    connection,
+    user,
+    userTokenAccount.address,
+    tokenMintAccount,
+    user.publicKey,
+    burnAmount,
+  );
+
+  const link = getExplorerLink('transaction', burnSignature, 'devnet');
+
+  console.log('Burn transaction link:\n', link);
+} catch (error) {
+  console.error(error);
+  process.exit(1);
+}
