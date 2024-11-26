@@ -1,1 +1,1 @@
-https://solana.com/developers/courses/tokens-and-nfts/token-program-advanced#summary
+https://solana.com/developers/courses/tokens-and-nfts/nfts-with-metaplex
