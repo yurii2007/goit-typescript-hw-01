@@ -1,1 +1,1 @@
-https://solana.com/developers/courses/tokens-and-nfts/nfts-with-metaplex#update-the-nft
+https://solana.com/developers/courses/tokens-and-nfts/nfts-with-metaplex#2-creating-a-metaplex-nft-inside-the-collection
