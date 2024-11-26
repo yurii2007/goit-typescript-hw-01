@@ -1,1 +1,1 @@
-https://solana.com/developers/courses/onchain-development/intro-to-onchain#summary
+https://solana.com/developers/courses/onchain-development/intro-to-anchor#summary
