@@ -2,6 +2,8 @@ import * as anchor from '@coral-xyz/anchor';
 import { Program } from '@coral-xyz/anchor';
 import { LocalSetup } from '../target/types/local_setup';
 import { expect } from 'chai';
+import { bs58 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
+import { BN } from 'bn.js';
 
 describe('counter', () => {
   // Configure the client to use the local cluster.
@@ -53,5 +55,18 @@ describe('counter', () => {
 
     const account = await program.account.counter.fetch(counter.publicKey);
     expect(account.count.toNumber()).to.equal(0);
+  });
+
+  it('get filtered accounts with count set to 0', async () => {
+    const accounts = await program.account.counter.all([
+      {
+        memcmp: {
+          offset: 8,
+          bytes: bs58.encode(new BN(0, 'le').toArray()),
+        },
+      },
+    ]);
+
+    expect(accounts.length).to.equal(1);
   });
 });
