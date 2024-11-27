@@ -14,10 +14,23 @@ pub mod local_setup {
         Ok(())
     }
 
-    pub fn update(ctx: Context<Update>) -> Result<()> {
+    pub fn increment(ctx: Context<Update>) -> Result<()> {
         let counter = &mut ctx.accounts.counter;
         counter.count = counter.count.checked_add(1).unwrap();
         msg!("Counter value was updated, new value: {}", counter.count);
+        Ok(())
+    }
+
+    pub fn decrement(ctx: Context<Update>) -> Result<()> {
+        let counter = &mut ctx.accounts.counter;
+
+        if counter.count < 1 {
+            msg!("Counter value is less than 1");
+        } else {
+            counter.count = counter.count.checked_sub(1).unwrap();
+            msg!("Conuter value decreased");
+        }
+
         Ok(())
     }
 }

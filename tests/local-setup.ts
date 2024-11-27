@@ -21,9 +21,10 @@ describe('counter', () => {
     const account = await program.account.counter.fetch(counter.publicKey);
     expect(account.count.toNumber()).to.equal(0);
   });
+
   it('count increment', async () => {
     const tx = await program.methods
-      .update()
+      .increment()
       .accounts({
         counter: counter.publicKey,
         user: provider.wallet.publicKey,
@@ -32,5 +33,25 @@ describe('counter', () => {
 
     const account = await program.account.counter.fetch(counter.publicKey);
     expect(account.count.toNumber()).to.equal(1);
+  });
+
+  it('count decrement', async () => {
+    const tx = await program.methods
+      .decrement()
+      .accounts({ counter: counter.publicKey, user: provider.wallet.publicKey })
+      .rpc();
+
+    const account = await program.account.counter.fetch(counter.publicKey);
+    expect(account.count.toNumber()).to.equal(0);
+  });
+
+  it('count decrement with no effect', async () => {
+    const tx = await program.methods
+      .decrement()
+      .accounts({ counter: counter.publicKey, user: provider.wallet.publicKey })
+      .rpc();
+
+    const account = await program.account.counter.fetch(counter.publicKey);
+    expect(account.count.toNumber()).to.equal(0);
   });
 });
