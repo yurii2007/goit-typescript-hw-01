@@ -44,16 +44,22 @@ export function CounterList() {
       {accounts.isLoading ? (
         <span className="loading loading-spinner loading-lg"></span>
       ) : accounts.data?.length ? (
-        console.log("accounts", accounts.data),
-        <div className="grid md:grid-cols-2 gap-4">
-          {accounts.data?.map((account) => (
-            console.log(account.publicKey),
-            <CounterCard
-              key={account.publicKey.toString()}
-              account={account.publicKey}
-            />
-          ))}
-        </div>
+        (console.log('accounts', accounts.data),
+        (
+          <div className="grid md:grid-cols-2 gap-4">
+            {accounts.data?.map(
+              (account) => (
+                console.log(account.publicKey),
+                (
+                  <CounterCard
+                    key={account.publicKey.toString()}
+                    account={account.publicKey}
+                  />
+                )
+              )
+            )}
+          </div>
+        ))
       ) : (
         <div className="text-center">
           <h2 className={'text-2xl'}>No accounts</h2>
@@ -65,17 +71,14 @@ export function CounterList() {
 }
 
 function CounterCard({ account }: { account: PublicKey }) {
-  const {
-    accountQuery,
-    incrementMutation,
-  } = useCounterProgramAccount({ account });
+  const { accountQuery, incrementMutation } = useCounterProgramAccount({
+    account,
+  });
 
-  let count = useMemo(
+  const count = useMemo(
     () => accountQuery.data?.count ?? 0,
     [accountQuery.data?.count]
   );
-
-  count = Number(count);
 
   return accountQuery.isLoading ? (
     <span className="loading loading-spinner loading-lg"></span>
@@ -87,7 +90,7 @@ function CounterCard({ account }: { account: PublicKey }) {
             className="card-title justify-center text-3xl cursor-pointer"
             onClick={() => accountQuery.refetch()}
           >
-            {count}
+            {Number(count)}
           </h2>
           <div className="card-actions justify-around">
             <button
