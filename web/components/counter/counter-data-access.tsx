@@ -8,6 +8,7 @@ import { useMemo } from 'react';
 import { useCluster } from '../cluster/cluster-data-access';
 import { useTransactionToast } from '../ui/ui-layout';
 import { useAnchorProvider } from '../solana/solana-provider';
+import toast from 'react-hot-toast';
 
 export function useCounterProgram() {
   const { connection } = useConnection();
@@ -72,6 +73,26 @@ export function useCounterProgramAccount({ account }: { account: PublicKey }) {
       transactionToast(signature);
       return accountQuery.refetch();
     },
+
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const decrementMutation = useMutation({
+    mutationKey: ['counter', 'decrement', { cluster, account }],
+    mutationFn: () => {
+      return program.methods.decrement().accounts({ counter: account }).rpc();
+    },
+
+    onSuccess: (signature) => {
+      transactionToast(signature);
+      return accountQuery.refetch();
+    },
+
+    onError: (error) => {
+      toast.error(error.message);
+    },
   });
 
   const accountQuery = useQuery({
@@ -80,5 +101,5 @@ export function useCounterProgramAccount({ account }: { account: PublicKey }) {
     queryFn: () => program.account.counter.fetch(account),
   });
 
-  return { incrementMutation, accountQuery };
+  return { incrementMutation, accountQuery, decrementMutation };
 }

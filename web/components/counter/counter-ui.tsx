@@ -71,14 +71,18 @@ export function CounterList() {
 }
 
 function CounterCard({ account }: { account: PublicKey }) {
-  const { accountQuery, incrementMutation } = useCounterProgramAccount({
-    account,
-  });
+  const { accountQuery, incrementMutation, decrementMutation } =
+    useCounterProgramAccount({
+      account,
+    });
 
   const count = useMemo(
     () => accountQuery.data?.count ?? 0,
     [accountQuery.data?.count]
   );
+
+  const isPendingMutation =
+    incrementMutation.isPending || decrementMutation.isPending;
 
   return accountQuery.isLoading ? (
     <span className="loading loading-spinner loading-lg"></span>
@@ -96,9 +100,16 @@ function CounterCard({ account }: { account: PublicKey }) {
             <button
               className="btn btn-xs lg:btn-md btn-outline"
               onClick={() => incrementMutation.mutateAsync()}
-              disabled={incrementMutation.isPending}
+              disabled={isPendingMutation}
             >
-              Increment
+              +
+            </button>
+            <button
+              className="btn btn-xs lg:btn-md btn-outline"
+              onClick={() => decrementMutation.mutateAsync()}
+              disabled={isPendingMutation || Number(count) < 1}
+            >
+              -
             </button>
           </div>
           <div className="text-center space-y-4">
