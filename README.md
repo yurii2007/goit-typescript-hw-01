@@ -1,3 +1,6 @@
+https://solana.com/developers/courses/onchain-development/anchor-pdas#lab
+
+
 # anchor-ping
 
 This project is generated with the [create-solana-dapp](https://github.com/solana-developers/create-solana-dapp) generator.
