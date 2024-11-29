@@ -1,1 +1,1 @@
-https://solana.com/developers/courses/onchain-development/anchor-pdas#testing
+https://solana.com/developers/courses/onchain-development/anchor-cpi#summary
