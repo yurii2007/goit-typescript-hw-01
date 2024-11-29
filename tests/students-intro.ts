@@ -32,4 +32,24 @@ describe('students-intro', () => {
       provider.wallet.publicKey.toString()
     );
   });
+
+  it('update student intro', async () => {
+    const updatedMessage = 'upd';
+    const tx = await program.methods
+      .updateStudentIntro(studentIntro.name, updatedMessage)
+      .rpc();
+
+    const account = await program.account.studentIntroState.fetch(studentPda);
+    expect(account.message).to.equal(updatedMessage);
+    expect(account.name).to.equal(studentIntro.name);
+    expect(account.student.toString()).to.equal(
+      provider.wallet.publicKey.toString()
+    );
+  });
+
+  it('delete student intro', async () => {
+    const tx = await program.methods
+      .deleteStudentIntro(studentIntro.name)
+      .rpc();
+  });
 });

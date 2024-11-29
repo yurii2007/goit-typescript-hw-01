@@ -29,6 +29,31 @@ pub mod students_intro {
 
         Ok(())
     }
+
+    pub fn update_student_intro(
+        ctx: Context<UpdateStudentIntro>,
+        name: String,
+        message: String
+    ) -> Result<()> {
+        check_inputs(&name, &message)?;
+
+        let student_intro = &mut ctx.accounts.student_intro;
+        student_intro.message = message;
+
+        msg!("Updating message for {}", ctx.accounts.initializer.key().to_string());
+
+        Ok(())
+    }
+
+    pub fn delete_student_intro(ctx: Context<DeleteStudentIntro>, name: String) -> Result<()> {
+        msg!(
+            "Deleting intro for {} with key: {}",
+            name,
+            ctx.accounts.initializer.key().to_string()
+        );
+
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -41,6 +66,37 @@ pub struct AddStudentIntro<'info> {
         payer = initializer,
         space = ANCHOR_DISCRIMINATOR + StudentIntroState::INIT_SPACE
     )]
+    pub student_intro: Account<'info, StudentIntroState>,
+
+    #[account(mut)]
+    pub initializer: Signer<'info>,
+
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+#[instruction(name: String, message: String)]
+pub struct UpdateStudentIntro<'info> {
+    #[account(
+        mut,
+        seeds = [name.as_bytes(), initializer.key().as_ref()],
+        bump,
+        realloc = ANCHOR_DISCRIMINATOR + StudentIntroState::INIT_SPACE,
+        realloc::payer = initializer,
+        realloc::zero = true
+    )]
+    pub student_intro: Account<'info, StudentIntroState>,
+
+    #[account(mut)]
+    pub initializer: Signer<'info>,
+
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+#[instruction(name: String)]
+pub struct DeleteStudentIntro<'info> {
+    #[account(mut, seeds = [name.as_bytes(), initializer.key().as_ref()], bump, close = initializer)]
     pub student_intro: Account<'info, StudentIntroState>,
 
     #[account(mut)]
