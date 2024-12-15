@@ -1,4 +1,6 @@
 use anchor_lang::prelude::*;
+use anchor_spl::token::{ mint_to, MintTo, Mint, TokenAccount, Token };
+use anchor_spl::associated_token::AssociatedToken;
 
 declare_id!("27cmrJNLk5YvX4NW8tEit82UtY6L2XhGaRGmFqLuEUYj");
 
@@ -33,6 +35,21 @@ pub mod movie_review {
         movie_review.rating = rating;
         movie_review.description = description;
 
+        mint_to(
+            CpiContext::new_with_signer(
+                ctx.accounts.token_program.to_account_info(),
+                MintTo {
+                    authority: ctx.accounts.initializer.to_account_info(),
+                    to: ctx.accounts.token_account.to_account_info(),
+                    mint: ctx.accounts.mint.to_account_info(),
+                },
+                &[&["mint".as_bytes(), &[ctx.bumps.mint]]]
+            ),
+            10 * (10 ^ 6)
+        )?;
+
+        msg!("Minted tokens");
+
         Ok(())
     }
 
@@ -58,9 +75,14 @@ pub mod movie_review {
         Ok(())
     }
 
-    pub fn delete_movie_review(ctx: Context<DeleteMovieReview>, title: String) -> Result<()> {
+    pub fn delete_movie_review(_ctx: Context<DeleteMovieReview>, title: String) -> Result<()> {
         msg!("Movie review for {} deleted", title);
 
+        Ok(())
+    }
+
+    pub fn initialize_mint(_ctx: Context<InitializeMint>) -> Result<()> {
+        msg!("Token mint initialized");
         Ok(())
     }
 }
@@ -81,6 +103,19 @@ pub struct AddMovieReview<'info> {
     pub initializer: Signer<'info>,
 
     pub system_program: Program<'info, System>,
+
+    pub token_program: Program<'info, Token>,
+    #[account(seeds = ["mint".as_bytes()], bump, mut)]
+    pub mint: Account<'info, Mint>,
+
+    #[account(
+        init_if_needed,
+        payer = initializer,
+        associated_token::mint = mint,
+        associated_token::authority = initializer
+    )]
+    pub token_account: Account<'info, TokenAccount>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
 }
 
 #[derive(Accounts)]
@@ -123,6 +158,26 @@ pub struct MovieAccountState {
     pub title: String,
     #[max_len(50)]
     pub description: String,
+}
+
+#[derive(Accounts)]
+pub struct InitializeMint<'info> {
+    #[account(
+        init,
+        seeds = ["mint".as_bytes()],
+        bump,
+        payer = user,
+        mint::decimals = 6,
+        mint::authority = user
+    )]
+    pub mint: Account<'info, Mint>,
+
+    #[account(mut)]
+    pub user: Signer<'info>,
+
+    pub token_program: Program<'info, Token>,
+    pub rent: Sysvar<'info, Rent>,
+    pub system_program: Program<'info, System>,
 }
 
 #[error_code]
